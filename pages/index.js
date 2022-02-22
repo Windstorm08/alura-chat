@@ -1,50 +1,14 @@
 import { Box, Button, Text, TextField, Image } from "@skynexui/components";
+import React from "react";
+import { useRouter } from "next/router";
 import appConfig from "../config.json";
-
-//Component react
-function GlobalStyle() {
-  return (
-    <style global jsx>
-      {`
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-          list-style: none;
-        }
-        body {
-          font-family: "Open Sans", sans-serif;
-        }
-
-        /* App fit Height */
-        html,
-        body,
-        #__next {
-          min-height: 100vh;
-          display: flex;
-          flex: 1;
-        }
-
-        #__next {
-          flex: 1;
-        }
-
-        #__next > * {
-          flex: 1;
-        }
-
-        /* ./App fit Height */
-      `}
-    </style>
-  );
-}
 
 function Titulo(props) {
   const Tag = props.tag || "h1";
 
   return (
     <>
-      <Tag> {props.children}</Tag>
+      <Tag>{props.children}</Tag>
 
       <style jsx>{`
         ${Tag} {
@@ -76,19 +40,20 @@ function Titulo(props) {
 export default Home;*/
 
 export default function PaginaInicial() {
-  const username = "Windstorm08";
+  //const username = "Windstorm08";
+
+  const [username, setUserName] = React.useState("Windstorm08");
+  const roteamento = useRouter();
 
   return (
     <>
-      <GlobalStyle />
       <Box
         styleSheet={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: appConfig.theme.colors.primary["500"],
           backgroundImage:
-            "url(https://virtualbackgrounds.site/wp-content/uploads/2020/08/the-matrix-digital-rain.jpg)",
+            "url(http://www.fundospaisagens.com/1366x768/wallpapers-de-chuva.png)",
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
           backgroundBlendMode: "multiply",
@@ -115,6 +80,11 @@ export default function PaginaInicial() {
           {/* Formulário */}
           <Box
             as="form"
+            onSubmit={function (event) {
+              event.preventDefault();
+
+              roteamento.push("/chat");
+            }}
             styleSheet={{
               display: "flex",
               flexDirection: "column",
@@ -136,7 +106,33 @@ export default function PaginaInicial() {
               {appConfig.name}
             </Text>
 
+            {/*
+            <input
+              type="text"
+              value={username}
+              onChange={function (event) {
+                //onde ta o valor
+                const valor = event.target.value;
+                //Trocar o valor da variavel
+                //Através do React
+                setUsername(valor);
+              }}
+            />*/}
+
             <TextField
+              value={username}
+              onChange={function (event) {
+                //onde ta o valor
+                const valor = event.target.value;
+                //Trocar o valor da variavel
+                //Através do React
+                let tamanho = valor.length;
+                if (tamanho > 0) {
+                  setUserName(valor);
+                } else {
+                  setUserName("");
+                }
+              }}
               fullWidth
               textFieldColors={{
                 neutral: {
@@ -147,6 +143,7 @@ export default function PaginaInicial() {
                 },
               }}
             />
+
             <Button
               type="submit"
               label="Entrar"
@@ -154,7 +151,7 @@ export default function PaginaInicial() {
               buttonColors={{
                 contrastColor: appConfig.theme.colors.neutrals["000"],
                 mainColor: appConfig.theme.colors.primary[500],
-                mainColorLight: appConfig.theme.colors.primary[400],
+                mainColorLight: appConfig.theme.colors.primary["050"],
                 mainColorStrong: appConfig.theme.colors.primary[600],
               }}
             />
@@ -182,7 +179,11 @@ export default function PaginaInicial() {
                 borderRadius: "50%",
                 marginBottom: "16px",
               }}
-              src={`https://github.com/${username}.png`}
+              src={
+                username > 2
+                  ? `https://github.com/${username}.png`
+                  : `https://github.com/Windstorm08.png`
+              }
             />
             <Text
               variant="body4"
