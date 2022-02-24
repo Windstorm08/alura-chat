@@ -1,21 +1,58 @@
 import { Box, Text, TextField, Image, Button } from "@skynexui/components";
 import React from "react";
 import appConfig from "../config.json";
+import { useRouter } from "next/router";
+import { ButtonSendSticker } from "../src/buttomSendSticker";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function escutaMensagemUmaVez(adicionaMensagem) {
+  return supabaseClient
+    .from("mensagens")
+    .on("INSERT", (respostaLive) => {
+      adicionaMensagem(respostaLive.new);
+    })
+    .subscribe();
+}
 
 export default function ChatPage() {
   // Sua lógica vai aqui
+  const roteamento = useRouter();
+  const usuarioLogado = roteamento.query.username;
   const [mensagem, setMensagem] = React.useState("");
   const [listaMensagem, setListaMensagem] = React.useState([]);
   // ./Sua lógica vai aqui
 
+  React.useEffect(() => {
+    supabaseClient
+      .from("mensagens")
+      .select("*")
+      .order("id", { ascending: false })
+      .then(({ data }) => {
+        setListaMensagem(data);
+      });
+    escutaMensagemUmaVez((novaMensagem) => {
+      setListaMensagem((valorAtual) => {
+        return [novaMensagem, ...valorAtual];
+      });
+    });
+  }, []);
+
   function handleNovaMensagem(novaMensagem) {
     const mensagem = {
-      id: listaMensagem.length + 1,
-      de: "Windstorm08",
+      //id: listaMensagem.length + 1,
+      de: usuarioLogado,
       texto: novaMensagem,
     };
 
-    setListaMensagem([mensagem, ...listaMensagem]);
+    supabaseClient
+      .from("mensagens")
+      .insert([mensagem])
+      .then(({ data }) => {
+        console.log("Mensagem", data);
+      });
+
     setMensagem("");
   }
 
@@ -106,6 +143,11 @@ export default function ChatPage() {
                 color: appConfig.theme.colors.neutrals[200],
               }}
             />
+            <ButtonSendSticker
+              onStickerClick={(sticker) => {
+                handleNovaMensagem(":sticker:" + sticker);
+              }}
+            />
           </Box>
         </Box>
       </Box>
@@ -138,12 +180,14 @@ function Header() {
 }
 
 function MessageList(props) {
-  console.log("MessageList", props);
+  {
+    /* console.log("MessageList", props);*/
+  }
   return (
     <Box
       tag="ul"
       styleSheet={{
-        overflow: "hidden",
+        overflow: "scroll",
         display: "flex",
         flexDirection: "column-reverse",
         flex: 1,
@@ -178,7 +222,7 @@ function MessageList(props) {
                   display: "inline-block",
                   marginRight: "8px",
                 }}
-                src={`https://github.com/Windstorm08.png`}
+                src={`https://github.com/${mensagem.de}.png`}
               />
 
               <Text tag="strong">{mensagem.de}</Text>
@@ -194,7 +238,11 @@ function MessageList(props) {
                 {new Date().toLocaleDateString()}
               </Text>
             </Box>
-            {mensagem.texto}
+            {mensagem.texto.startsWith(":sticker:") ? (
+              <Image src={mensagem.texto.replace(":sticker:", "")} />
+            ) : (
+              mensagem.texto
+            )}
           </Text>
         );
       })}

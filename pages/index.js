@@ -83,7 +83,7 @@ export default function PaginaInicial() {
             onSubmit={function (event) {
               event.preventDefault();
 
-              roteamento.push("/chat");
+              roteamento.push(`/chat?username=${username}`);
             }}
             styleSheet={{
               display: "flex",
@@ -105,7 +105,6 @@ export default function PaginaInicial() {
             >
               {appConfig.name}
             </Text>
-
             {/*
             <input
               type="text"
@@ -118,7 +117,6 @@ export default function PaginaInicial() {
                 setUsername(valor);
               }}
             />*/}
-
             <TextField
               value={username}
               onChange={function (event) {
@@ -179,11 +177,7 @@ export default function PaginaInicial() {
                 borderRadius: "50%",
                 marginBottom: "16px",
               }}
-              src={
-                username > 2
-                  ? `https://github.com/${username}.png`
-                  : `https://github.com/Windstorm08.png`
-              }
+              src={`https://github.com/${username}.png`}
             />
             <Text
               variant="body4"
